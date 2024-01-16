@@ -1,102 +1,93 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { SelectOption, SelectProps } from "./Types";
-
 import styles from "./select.module.css";
 import ClearButton from "./ClearButton";
 import OptionList from "./OptionList";
 import { OptionBadge } from "./OptionBadge";
 
-
 const Select: React.FC<SelectProps> = ({ value = [], onChange, options }) => {
-    const [isOpen, setIsOpen] = useState(false);
-    const [highlightedIndex, setHighlightedIndex] = useState(0);
-    const containerRef = useRef<HTMLDivElement>(null);
-    const memoizedOptions = useMemo(() => options, [options]);
-  
-    useEffect(() => {
-      if (isOpen) setHighlightedIndex(0);
-    }, [isOpen]);
-  
-    useEffect(() => {
-      const handler = (e: KeyboardEvent) => {
-        if (!containerRef.current) return;
-        switch (e.code) {
-          case "Enter":
-          case "Space":
-            setIsOpen((prev) => !prev);
-            if (isOpen) selectOption(memoizedOptions[highlightedIndex]);
-            break;
-          case "ArrowUp":
-          case "ArrowDown": {
-            if (!isOpen) {
-              setIsOpen(true);
-              break;
-            }
-  
-            const newValue = highlightedIndex + (e.code === "ArrowDown" ? 1 : -1);
-            if (newValue >= 0 && newValue < memoizedOptions.length) {
-              setHighlightedIndex(newValue);
-            }
-            break;
-          }
-          case "Escape":
-            setIsOpen(false);
-            break;
-        }
-      };
-      containerRef.current?.addEventListener("keydown", handler);
-  
-      return () => {
-        containerRef.current?.removeEventListener("keydown", handler);
-      };
-    }, [isOpen, highlightedIndex, memoizedOptions]);
-  
-    function clearOptions() {
-      if (value != null && value.length > 0) {
-        onChange([]);
+  const [isOpen, setIsOpen] = useState(false);
+  const [highlightedIndex, setHighlightedIndex] = useState(0);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const memoizedOptions = useMemo(() => options, [options]);
+  const [inputValue, setInputValue] = useState("");
+  const [isHighlighted, setIsHighlighted] = useState(false);
+
+  useEffect(() => {
+    if (isOpen) setHighlightedIndex(0);
+  }, [isOpen]);
+
+  function clearOptions() {
+    if (value.length > 0) onChange([]);
+  }
+
+  function selectOption(option: SelectOption) {
+    const updatedValue = value.includes(option)
+      ? value.filter((o) => o !== option)
+      : [...value, option];
+    onChange(updatedValue);
+  }
+
+  function handleOptionClick(option: SelectOption) {
+    selectOption(option);
+    setIsOpen(false);
+    setInputValue("");
+  }
+
+  function handleInputChange(event: React.ChangeEvent<HTMLInputElement>) {
+    setInputValue(event.target.value);
+    setIsOpen(true);
+    setHighlightedIndex(0);
+    setIsHighlighted(event.target.value === "" && value.length > 0);
+  }
+
+  function handleInputKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
+    if (event.key === "Backspace" && inputValue === "" && value.length > 0) {
+      setIsHighlighted(!isHighlighted);
+
+      if (isHighlighted) {
+        const lastIndex = value.length - 1;
+        const updatedValue = [...value.slice(0, lastIndex), ...value.slice(lastIndex + 1)];
+        onChange(updatedValue);
       }
     }
-  
-    function selectOption(option: SelectOption) {
-      if (!value) {
-        onChange([option]);
-      } else if (value.includes(option)) {
-        onChange(value.filter((o) => o !== option));
-      } else {
-        onChange([...value, option]);
-      }
-    }
-  
-    function isOptionSelected(option: SelectOption) {
-      return value && value.includes(option);
-    }
-  
-    return (
-      <div
-        ref={containerRef}
-        onBlur={() => setIsOpen(false)}
-        onClick={() => setIsOpen((prev) => !prev)}
-        tabIndex={0}
-        className={styles.container}
-      >
+  }
+
+  function filterOptions() {
+    return memoizedOptions.filter((option) =>
+      option.label.toLowerCase().includes(inputValue.toLowerCase())
+    );
+  }
+
+  return (
+    <div className={styles.container}>
+      <div ref={containerRef} onBlur={() => setIsOpen(false)} onClick={() => setIsOpen(true)} tabIndex={0} className={styles.topbox}>
         <span className={styles.value}>
-          {value.map((v) => (
-            <OptionBadge key={v.value} option={v} onSelect={() => selectOption(v)} />
+          {value.map((v, index) => (
+            <OptionBadge key={v.value} option={v} onSelect={() => selectOption(v)} isHighlighted={isHighlighted && index === value.length - 1} />
           ))}
         </span>
         <ClearButton onClick={clearOptions} />
         <OptionList
-          options={memoizedOptions}
+          options={filterOptions()}
           isOpen={isOpen}
           highlightedIndex={highlightedIndex}
-          onOptionClick={selectOption}
+          onOptionClick={handleOptionClick}
           onOptionMouseEnter={setHighlightedIndex}
-          isOptionSelected={isOptionSelected}
+          isOptionSelected={(option) => value.includes(option)}
         />
       </div>
-    );
-  };
-  
-  
+      <input
+        type="text"
+        value={inputValue}
+        onChange={handleInputChange}
+        onKeyDown={handleInputKeyDown}
+        onMouseDown={() => setIsOpen(true)}
+        placeholder="Type to filter..."
+        className={styles.input}
+      />
+    </div>
+  );
+};
 
-export default Select
+export default Select;

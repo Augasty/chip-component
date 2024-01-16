@@ -1,3 +1,4 @@
+
 import { SelectOption } from "./Types";
 import styles from "./select.module.css";
 
@@ -18,21 +19,23 @@ const OptionList: React.FC<{
 }) => {
   const filteredOptions = options.filter((option) => !isOptionSelected(option));
 
+
+
   return (
     <ul className={`${styles.options} ${isOpen ? styles.show : ""}`}>
-      {filteredOptions.map((option, index) => (
-        <li
-          onClick={(e) => {
-            e.stopPropagation();
-            onOptionClick(option);
-          }}
+      {filteredOptions.map((option, index) => {
+
+        return (<li
+          onClick={() => onOptionClick(option)}
           onMouseEnter={() => onOptionMouseEnter(index)}
           key={option.value}
-          className={`${styles.option} ${index === highlightedIndex ? styles.highlighted : ""}`}
+          className={`${styles.option} ${
+            index === highlightedIndex ? styles.highlighted : ""
+          }`}
         >
           {option.label}
         </li>
-      ))}
+      )})}
     </ul>
   );
 };

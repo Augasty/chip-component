@@ -1,29 +1,44 @@
+/* select.module.css */
+
 .container {
-  position: relative;
-  width: 20em;
-  min-height: 1.5em;
-  border: .05em solid #777;
   display: flex;
   align-items: center;
-  gap: .5em;
-  padding: .5em;
-  border-radius: .25em;
-  outline: none;
-
+  width: 20em;
   margin: 0 auto;
   margin-top: 20vh;
   transform: translateY(-50%);
+  border: 1px solid #777;
+  border-radius: 0.25em;
 }
 
-.container:focus {
+.topbox {
+  position: relative;
+  outline: none;
+  width: min-content;
+  display: flex;
+  align-items: center;
+  padding: 0.5em;
+  cursor: text;
+}
+
+.topbox:focus {
   border-color: hsl(105, 79%, 45%);
 }
 
 .value {
   flex-grow: 1;
   display: flex;
-  gap: .5em;
+  gap: 0.5em;
   flex-wrap: wrap;
+
+}
+
+.input {
+  border: none;
+  outline: none;
+  font-size: 1em;
+  padding: 0.5em;
+  flex-grow: 1;
 }
 
 .clear-btn {
@@ -41,18 +56,6 @@
   color: #333;
 }
 
-.divider {
-  background-color: #777;
-  align-self: stretch;
-  width: .05em;
-}
-
-.caret {
-  translate: 0 25%;
-  border: .25em solid transparent;
-  border-top-color: #777;
-}
-
 .options {
   position: absolute;
   margin: 0;
@@ -61,11 +64,11 @@
   display: none;
   max-height: 15em;
   overflow-y: auto;
-  border: .05em solid #777;
-  border-radius: .25em;
-  width: 100%;
+  border: 0.05em solid #777;
+  border-radius: 0.25em;
+  width: 20em;
   left: 0;
-  top: calc(100% + .25em);
+  top: calc(100% + 0.25em);
   background-color: white;
   z-index: 100;
 }
@@ -75,31 +78,36 @@
 }
 
 .option {
-  padding: .25em .5em;
+  padding: 0.25em 0.5em;
   cursor: pointer;
 }
 
-
-
 .option.highlighted {
   background-color: hsl(105, 79%, 45%);
-  color: white
+  color: white;
 }
 
 .option-badge {
   display: flex;
   align-items: center;
-  border: .05em solid #777;
-  border-radius: .25em;
-  padding: .15em .25em;
-  gap: .25em;
+  border: 0.05em solid #777;
+  border-radius: 0.25em;
+  padding: 0.15em 0.25em;
+  gap: 0.25em;
   cursor: pointer;
   background: none;
   outline: none;
+  border: 1px solid red;
+  border-radius: 2px;
 }
 
 .option-badge:hover,
 .option-badge:focus {
+  background-color: hsl(0, 100%, 90%);
+  border-color: hsl(0, 100%, 50%);
+}
+
+.isHighlighted{
   background-color: hsl(0, 100%, 90%);
   border-color: hsl(0, 100%, 50%);
 }
